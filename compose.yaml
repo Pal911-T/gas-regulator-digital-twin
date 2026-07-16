@@ -28,6 +28,36 @@ services:
       - mqtt
     restart: unless-stopped
 
+  thingsboard:
+    image: thingsboard/tb-postgres:latest
+    profiles: ["thingsboard"]
+    ports:
+      - "8080:9090"
+      - "1884:1883"
+    environment:
+      TB_QUEUE_TYPE: in-memory
+    volumes:
+      - thingsboard_data:/data
+      - thingsboard_logs:/var/log/thingsboard
+    restart: unless-stopped
+
+  thingsboard-bridge:
+    build: ./thingsboard-bridge
+    profiles: ["thingsboard"]
+    environment:
+      SOURCE_MQTT_HOST: mqtt
+      SOURCE_MQTT_PORT: 1883
+      SOURCE_MQTT_TOPIC: gas-regulator/+/telemetry
+      THINGSBOARD_MQTT_HOST: thingsboard
+      THINGSBOARD_MQTT_PORT: 1883
+      THINGSBOARD_DEVICE_TOKEN: ${THINGSBOARD_DEVICE_TOKEN:-CHANGE_ME}
+    depends_on:
+      - mqtt
+      - thingsboard
+    restart: unless-stopped
+
 volumes:
   mosquitto_data:
   mosquitto_log:
+  thingsboard_data:
+  thingsboard_logs:
