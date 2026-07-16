@@ -1,0 +1,45 @@
+{
+  "device_id": "RTJ-25-4.0Z-001",
+  "source_topic": "gas-regulator/RTJ-25-4.0Z-001/telemetry",
+  "thingsboard_topic": "v1/devices/me/telemetry",
+  "timestamp_field": "timestamp",
+  "quality_field": "quality",
+  "forward_keys": [
+    "inlet_pressure",
+    "intermediate_pressure",
+    "outlet_pressure",
+    "stage1_displacement",
+    "stage1_opening",
+    "stage2_displacement",
+    "stage2_opening",
+    "standard_flow",
+    "gas_temperature",
+    "pressure_setpoint",
+    "cutoff_state",
+    "relief_state",
+    "device_status",
+    "communication_status",
+    "signal_strength",
+    "quality"
+  ],
+  "units": {
+    "inlet_pressure": "MPa",
+    "intermediate_pressure": "MPa",
+    "outlet_pressure": "MPa",
+    "stage1_displacement": "mm",
+    "stage2_displacement": "mm",
+    "stage1_opening": "%",
+    "stage2_opening": "%",
+    "standard_flow": "Nm3/h",
+    "gas_temperature": "degC",
+    "pressure_setpoint": "MPa",
+    "signal_strength": "dBm"
+  },
+  "predicted_key_prefix": "predicted_",
+  "rules": {
+    "never_forward_units_object_as_timeseries": true,
+    "never_rename_predicted_values_as_measured_values": true,
+    "reject_missing_device_id": true,
+    "reject_missing_timestamp": true
+  }
+}
