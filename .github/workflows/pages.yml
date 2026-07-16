@@ -2,7 +2,7 @@ name: Deploy V3.3 Showcase
 
 on:
   push:
-    branches: [ui/v33-baseline]
+    branches: [main]
     paths:
       - 'showcase/**'
       - '.github/workflows/pages.yml'
