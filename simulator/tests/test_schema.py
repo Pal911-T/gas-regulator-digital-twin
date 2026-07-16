@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-import importlib.util
+import sys
 from pathlib import Path
 
-MODULE_PATH = Path(__file__).resolve().parents[1] / "app.py"
-SPEC = importlib.util.spec_from_file_location("regulator_simulator", MODULE_PATH)
-assert SPEC is not None and SPEC.loader is not None
-MODULE = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(MODULE)
+SIMULATOR_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(SIMULATOR_DIR))
+
+from model import build_sample
 
 
 def test_sample_contains_required_telemetry() -> None:
-    sample = MODULE.build_sample(1)
+    sample = build_sample(1)
     required = {
         "device_id",
         "timestamp",
@@ -38,7 +37,7 @@ def test_sample_contains_required_telemetry() -> None:
 
 def test_sample_values_stay_in_initial_design_bounds() -> None:
     for step in range(200):
-        sample = MODULE.build_sample(step)
+        sample = build_sample(step)
         assert 0.1 <= sample["inlet_pressure"] <= 4.0
         assert 0.0 <= sample["intermediate_pressure"] <= 4.0
         assert 0.0 <= sample["outlet_pressure"] <= 2.5
