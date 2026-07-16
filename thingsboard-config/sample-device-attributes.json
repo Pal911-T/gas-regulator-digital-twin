@@ -1,0 +1,21 @@
+{
+  "model": "RTJ-25/4.0Z",
+  "device_type": "dual_stage_axial_flow_gas_regulator",
+  "nominal_diameter_mm": 25,
+  "body_material": "WCB",
+  "overall_length_mm": 197,
+  "minimum_inlet_pressure_mpa": 0.1,
+  "maximum_inlet_pressure_mpa": 4.0,
+  "minimum_outlet_pressure_mpa": 0.1,
+  "maximum_outlet_pressure_mpa": 2.5,
+  "minimum_flow_nm3_h": 400,
+  "maximum_flow_nm3_h": 8000,
+  "regulation_accuracy_class": "AC5",
+  "lockup_pressure_class": "SG5",
+  "telemetry_transport": "MQTT over 5G",
+  "edge_terminal_role": "multi_channel_acquisition_and_position_indicator",
+  "safety_controller": "local_plc",
+  "cloud_emergency_shutdown_authority": false,
+  "predicted_values_are_measured_values": false,
+  "commissioning_status": "simulation"
+}
