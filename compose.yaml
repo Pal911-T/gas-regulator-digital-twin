@@ -1,0 +1,33 @@
+services:
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./deploy/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+    restart: unless-stopped
+
+  analytics-service:
+    build: ./analytics-service
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  simulator:
+    build: ./simulator
+    environment:
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      MQTT_TOPIC: gas-regulator/RTJ-25-4.0Z-001/telemetry
+      PUBLISH_INTERVAL_SECONDS: ${PUBLISH_INTERVAL_SECONDS:-1}
+    depends_on:
+      - mqtt
+    restart: unless-stopped
+
+volumes:
+  mosquitto_data:
+  mosquitto_log:
