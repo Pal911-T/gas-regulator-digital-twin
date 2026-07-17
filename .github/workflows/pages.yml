@@ -25,18 +25,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inject V3.4 twin analysis module
+      - name: Inject V3.4 and V3.5 showcase upgrades
         run: |
           python - <<'PY'
           from pathlib import Path
           path = Path('showcase/index.html')
           html = path.read_text(encoding='utf-8')
-          css = '<link rel="stylesheet" href="upgrade-v34.css">'
-          js = '<script src="upgrade-v34.js"></script>'
-          if css not in html:
-              html = html.replace('</head>', f'{css}\n</head>')
-          if js not in html:
-              html = html.replace('</body>', f'{js}\n</body>')
+          assets = [
+              ('</head>', '<link rel="stylesheet" href="upgrade-v34.css">'),
+              ('</head>', '<link rel="stylesheet" href="upgrade-v35.css">'),
+              ('</body>', '<script src="upgrade-v34.js"></script>'),
+              ('</body>', '<script src="upgrade-v35.js"></script>'),
+          ]
+          for closing, asset in assets:
+              if asset not in html:
+                  html = html.replace(closing, f'{asset}\n{closing}')
           path.write_text(html, encoding='utf-8')
           PY
       - uses: actions/configure-pages@v5
