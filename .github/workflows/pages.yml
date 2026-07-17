@@ -25,6 +25,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Attach decision explanation module
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('showcase/index.html')
+          html = path.read_text(encoding='utf-8')
+          tag = '<script src="decision-explanation-v43.js"></script>'
+          if tag not in html:
+              html = html.replace('</body>', f'{tag}\n</body>')
+          path.write_text(html, encoding='utf-8')
+          PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
