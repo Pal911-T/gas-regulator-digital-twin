@@ -2570,5 +2570,101 @@ updateScenarioModule();
 })();
 
 </script>
+
+<script id="v40-patch-script">
+(() => {
+  const q=(s,r=document)=>r.querySelector(s), qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  const fmt=(n,d=1)=>Number(n).toFixed(d);
+  const style = document.createElement('style');
+  style.id='v40-style';
+  style.textContent=`
+    #v40RtCard{margin-bottom:14px}
+    #v40RtCard .v40-focus{margin:0 14px 12px;padding:10px 14px;border:1px solid rgba(0,229,255,.12);border-radius:10px;background:rgba(5,20,36,.7);color:#8fbfd0;font-size:13px;line-height:1.7}
+    #v40RtCard .v40-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:0 14px 14px}
+    #v40RtCard .v40-box{background:rgba(7,24,42,.82);border:1px solid rgba(0,229,255,.12);border-radius:14px;padding:12px}
+    #v40RtCard .v40-title{font-size:14px;color:#98c7d8;margin-bottom:8px}
+    #v40RtCard .v40-canvas{height:148px}
+    #tab-pressure #v39PressureRoot .v39-cutaway{height:560px;background:#02060b}
+    #tab-pressure #v39PressureRoot .v39-cutaway img{inset:18px 14px 44px 14px;width:calc(100% - 28px);height:calc(100% - 62px)}
+    #tab-pressure #v39PressureRoot .v39-wash{left:6%;right:6%;top:40.5%;height:21%;background:linear-gradient(90deg,rgba(255,43,85,.32),rgba(255,104,35,.26),rgba(255,190,66,.20),rgba(0,229,255,.16));mix-blend-mode:screen;filter:blur(0.5px)}
+    #tab-pressure #v39PressureRoot .v39-line{left:6.5%;right:6.5%;top:49.2%;height:3px;transform:translateY(-50%);background:linear-gradient(90deg,rgba(255,255,255,.0),rgba(229,250,255,.95),rgba(0,229,255,.55),rgba(255,255,255,0));box-shadow:0 0 8px rgba(0,229,255,.58)}
+    #tab-pressure #v39PressureRoot .v39-dot{top:49.2%;transform:translateY(-50%);width:13px;height:13px;box-shadow:0 0 10px 3px rgba(0,229,255,.78)}
+    #tab-pressure #v39PressureRoot .v39-throat{left:60.2%;top:40.6%;width:8.5%;height:20%;background:radial-gradient(circle,rgba(255,214,88,.72),rgba(255,112,0,.28) 42%,transparent 72%)}
+    #tab-pressure #v39PressureRoot .v39-label{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:10px;background:rgba(3,16,30,.72);border:1px solid rgba(0,229,255,.16);backdrop-filter:blur(2px);font-size:13px;line-height:1.2}
+    #tab-pressure #v39PressureRoot .v39-label.l1{left:17%;top:10%}
+    #tab-pressure #v39PressureRoot .v39-label.l2{left:41%;top:5%}
+    #tab-pressure #v39PressureRoot .v39-label.l3{right:15%;top:10%}
+    #tab-pressure #v39PressureRoot .v39-label.l4{left:44%;bottom:18%;z-index:3;max-width:300px;text-align:center;color:#d4f7ff}
+    #tab-pressure #v39PressureRoot .v39-tag.t1{left:18px;bottom:58px}
+    #tab-pressure #v39PressureRoot .v39-tag.t2{left:37%;bottom:18px;z-index:2}
+    #tab-pressure #v39PressureRoot .v39-tag.t3{right:18px;bottom:58px}
+    #tab-pressure #v39PressureRoot .v39-caption{font-size:12px;line-height:1.6}
+    @media(max-width:1600px){#v40RtCard .v40-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:900px){#v40RtCard .v40-grid{grid-template-columns:1fr}}
+  `;
+  if(!q('#v40-style')) document.head.appendChild(style);
+
+  function buildChart(id,label,color,unit,min,max){
+    const el=document.getElementById(id); if(!el||!window.Chart) return null;
+    return new Chart(el,{type:'line',data:{labels:[],datasets:[{label,data:[],borderColor:color,backgroundColor:color+'18',fill:true,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(4,18,40,.96)',borderColor:'#0d6efd',borderWidth:1,titleColor:'#00e5ff',bodyColor:'#7eb8d8',callbacks:{label:(ctx)=>`${ctx.dataset.label}: ${ctx.parsed.y}${unit}`}}},interaction:{mode:'index',intersect:false},scales:{x:{grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#4a7a9a',maxTicksLimit:6}},y:{min,max,grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#4a7a9a'}}},elements:{point:{radius:0},line:{tension:.32}}}});
+  }
+
+  const state={buf:{in:[],out:[],flow:[],valve:[],temp:[]},charts:{},timer:null};
+  function rtVal(id){return parseFloat(q('#'+id)?.textContent)||0;}
+
+  function ensureRealtime(){
+    const main=q('#tab-realtime .main'); if(!main) return;
+    q('#v37RtWaveCard')?.remove();
+    q('#v39RealtimeCard')?.remove();
+    const legacy=q('#rtChart1')?.closest('.card');
+    if(legacy) legacy.style.display='none';
+    if(q('#v40RtCard')) return;
+    const first=main.querySelector('.card');
+    const card=document.createElement('div');
+    card.id='v40RtCard'; card.className='card';
+    card.innerHTML=`<div class="card-head"><div class="card-title">关键直采指标波形监测</div><div style="font-size:14px;color:var(--text-muted)">本页重点：直接采集量统一用同一风格滚动波形展示，间接结果保留在下方面板</div></div>
+      <div class="v40-focus"><b>监控重点：</b>进/出口压力、流量、阀门开度、温度属于直采或准直采指标，统一按 60 秒滚动波形展示；中间压力、稳压精度、风险等级等间接指标继续在下方面板中集中呈现。</div>
+      <div class="v40-grid">
+        <div class="v40-box"><div class="v40-title">进口压力 P1</div><div class="v40-canvas"><canvas id="v40In"></canvas></div></div>
+        <div class="v40-box"><div class="v40-title">出口压力 P2</div><div class="v40-canvas"><canvas id="v40Out"></canvas></div></div>
+        <div class="v40-box"><div class="v40-title">流量 Q</div><div class="v40-canvas"><canvas id="v40Flow"></canvas></div></div>
+        <div class="v40-box"><div class="v40-title">阀门开度 X</div><div class="v40-canvas"><canvas id="v40Valve"></canvas></div></div>
+        <div class="v40-box"><div class="v40-title">气体温度 T</div><div class="v40-canvas"><canvas id="v40Temp"></canvas></div></div>
+      </div>`;
+    if(first) main.insertBefore(card, first); else main.prepend(card);
+    state.charts.in=buildChart('v40In','P1','#00e5ff',' MPa',0.20,0.32);
+    state.charts.out=buildChart('v40Out','P2','#4fc3f7',' kPa',6,9);
+    state.charts.flow=buildChart('v40Flow','Q','#26c6da',' m³/h',0,160);
+    state.charts.valve=buildChart('v40Valve','X','#00bcd4',' %',0,100);
+    state.charts.temp=buildChart('v40Temp','T','#ffc107',' °C',0,30);
+  }
+
+  function updateRealtime(){
+    ensureRealtime();
+    const vals={in:rtVal('rt_in'),out:rtVal('rt_out'),flow:rtVal('rt_flow'),valve:rtVal('rt_valve'),temp:rtVal('rt_temp')};
+    Object.entries(vals).forEach(([k,v])=>{
+      state.buf[k].push(v); if(state.buf[k].length>60) state.buf[k].shift();
+      const c=state.charts[k]; if(c){ c.data.labels=Array.from({length:state.buf[k].length},(_,i)=>`${state.buf[k].length-i}s`); c.data.datasets[0].data=state.buf[k]; c.update('none'); }
+    });
+  }
+
+  function refinePressure(){
+    const root=q('#v39PressureRoot'); if(!root) return;
+    const head=q('.v39-head h3',root); if(head) head.textContent='工况映射与短时推演';
+    const sub=q('.v39-head span',root); if(sub) sub.textContent='原结构图底图 + 中心线粒子流动 + 节流区高亮';
+    const l4=q('.v39-label.l4',root); if(l4) l4.textContent='阀芯/阀座节流区 → 稳压恢复区';
+    const l2=q('.v39-label.l2',root); if(l2) l2.textContent='双级执行与反馈机构';
+  }
+
+  function boot(){
+    updateRealtime(); refinePressure();
+    if(state.timer) clearInterval(state.timer);
+    state.timer=setInterval(()=>{updateRealtime(); refinePressure();},1000);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+
+</script>
 </body>
 </html>
