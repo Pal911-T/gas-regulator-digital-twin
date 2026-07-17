@@ -1,4 +1,4 @@
-name: Deploy V3.3 Showcase
+name: Deploy Showcase
 
 on:
   push:
@@ -25,25 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inject V3.4, V3.5 and V3.6 showcase upgrades
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          path = Path('showcase/index.html')
-          html = path.read_text(encoding='utf-8')
-          assets = [
-              ('</head>', '<link rel="stylesheet" href="upgrade-v34.css">'),
-              ('</head>', '<link rel="stylesheet" href="upgrade-v35.css">'),
-              ('</head>', '<link rel="stylesheet" href="upgrade-v36.css">'),
-              ('</body>', '<script src="upgrade-v34.js"></script>'),
-              ('</body>', '<script src="upgrade-v35.js"></script>'),
-              ('</body>', '<script src="upgrade-v36.js"></script>'),
-          ]
-          for closing, asset in assets:
-              if asset not in html:
-                  html = html.replace(closing, f'{asset}\n{closing}')
-          path.write_text(html, encoding='utf-8')
-          PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
